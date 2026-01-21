@@ -1,0 +1,64 @@
+import discord
+from discord.ext import commands
+import os
+
+# Intents
+intents = discord.Intents.default()
+intents.message_content = True
+
+# Bot ayarları
+bot = commands.Bot(
+    command_prefix="!",
+    intents=intents
+)
+
+# Bot hazır olunca
+@bot.event
+async def on_ready():
+    print(f"{bot.user} olarak giriş yaptık!")
+    await bot.change_presence(
+        activity=discord.Game(name="!yardım | Discord Botu")
+    )
+
+# Hataları yakalama
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("❌ Böyle bir komut yok.")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send("❌ Geçersiz argüman kullandın.")
+    else:
+        await ctx.send("⚠️ Bir hata oluştu.")
+        print(error)
+
+# Merhaba komutu
+@bot.command()
+async def hello(ctx):
+    await ctx.send(f"👋 Merhaba {ctx.author.mention}! Ben bir Discord botuyum!")
+
+# heh komutu
+@bot.command()
+async def heh(ctx, count: int = 5):
+    if count > 50:
+        await ctx.send("❌ En fazla 50 heh yazabilirim!")
+        return
+
+    await ctx.send("he" * count)
+
+# Ping komutu
+@bot.command()
+async def ping(ctx):
+    await ctx.send(f"🏓 Pong! Gecikme: {round(bot.latency * 1000)}ms")
+
+# Yardım komutu
+@bot.command()
+async def yardım(ctx):
+    await ctx.send(
+        "**📌 Komutlar:**\n"
+        "`!hello` → Selam verir\n"
+        "`!heh [sayı]` → he he yazar\n"
+        "`!ping` → Bot gecikmesini gösterir"
+    )
+
+# TOKEN (env önerilir)
+bot.run("TOKEN_BURAYA")
